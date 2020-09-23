@@ -1,0 +1,83 @@
+{
+ "metadata": {
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.8.2-final"
+  },
+  "orig_nbformat": 2,
+  "kernelspec": {
+   "name": "python_defaultSpec_1600841319843",
+   "display_name": "Python 3.8.2 64-bit"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2,
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 33,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pandas as pd \n",
+    "import numpy as np \n",
+    "from sklearn import feature_extraction, linear_model, model_selection, preprocessing"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# 读取数据\n",
+    "train = pd.read_csv(\"train.csv\")\n",
+    "test = pd.read_csv(\"test.csv\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 45,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# feature engineering\n",
+    "count_vectorizer = feature_extraction.text.CountVectorizer()\n",
+    "train_vectors = count_vectorizer.fit_transform(train[\"text\"])\n",
+    "test_vectors = count_vectorizer.transform(test[\"text\"])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 52,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# train\n",
+    "clf = linear_model.RidgeClassifier()\n",
+    "scores = model_selection.cross_val_score(clf, train_vectors, train[\"target\"], cv=3, scoring=\"f1\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 48,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# submission \n",
+    "clf.fit(train_vectors, train[\"target\"])\n",
+    "sample_submission = pd.read_csv(\"sample_submission.csv\")\n",
+    "sample_submission[\"target\"] = clf.predict(test_vectors)\n",
+    "sample_submission.to_csv(\"submission.csv\", index=False)"
+   ]
+  }
+ ]
+}
